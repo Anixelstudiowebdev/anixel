@@ -1,47 +1,59 @@
-import { createSlice } from "@reduxjs/toolkit";
+import {  createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
-    userLocation: {
-        lat: null,
-        lng: null,
-        loading: false,
-        error: null,
-    },
-    destinationLocation: {
-        lat: null,
-        lng: null,
-    },
-};
 
-export const locationSlice = createSlice({
-    name: 'location',
-    initialState,
-    reducers: {
-        getUserLocationStart: (state) => {
-            state.userLocation.loading = true;
-            state.userLocation.error = null;
+const Actionlocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          console.log(`Latitude: ${lat}, longitude: ${lng}`);
         },
-        getUserLocationSuccess: (state, action) => {
-            state.userLocation.loading = false;
-            state.userLocation.lat = action.payload.lat;
-            state.userLocation.lng = action.payload.lng;
-        },
-        getUserLocationError: (state, action) => {
-            state.userLocation.loading = false;
-            state.userLocation.error = action.payload;
-        },
-        setDestinationLocation: (state, action) => {
-            state.destinationLocation.lat = action.payload.lat;
-            state.destinationLocation.lng = action.payload.lng;
-        },
-    },
+        (error) => {
+          console.error("Error getting user location:", error);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+
+}    
+
+
+
+
+
+
+
+
+
+
+
+const Userlocation = createSlice({
+  name: "location",
+  initialState: {
+    latitude: 28.65381,
+    longitude: 77.22897,
+    loading: false,
+    error: null,
+  },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(getLocation.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getLocation.fulfilled, (state, action) => {
+        state.loading = false;
+        state.latitude = action.payload.latitude;
+        state.longitude = action.payload.longitude;
+      })
+      .addCase(getLocation.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      });
+  },
 });
 
-export const {
-    getUserLocationStart,
-    getUserLocationSuccess,
-    getUserLocationError,
-    setDestinationLocation,
-} = locationSlice.actions;
-
-export default locationSlice.reducer;
+export default Userlocation.reducer;
